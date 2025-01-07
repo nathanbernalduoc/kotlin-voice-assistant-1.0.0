@@ -2,6 +2,7 @@ package com.nathanbernal.duocva
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nathanbernal.duocva.models.Usuario
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
 
 class RegisterActivity : AppCompatActivity() {
@@ -106,7 +108,14 @@ fun RegisterForm() {
         Button(
             modifier = Modifier.padding(16.dp)
                 .fillMaxWidth(),
-            onClick = {  },
+            onClick = {
+                val usuario = Usuario(email.value, nombre.value, contrasena.value)
+                Usuario.agregarUsuario(usuario)
+                Toast.makeText(context, "Usuario almacenado", Toast.LENGTH_SHORT).show()
+                // volviendo a login
+                val intent = Intent(context, LoginActivity::class.java)
+                context.startActivity(intent)
+            },
         ) {
             Text(
                 "Registrar",

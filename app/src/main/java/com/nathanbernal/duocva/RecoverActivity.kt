@@ -2,6 +2,8 @@ package com.nathanbernal.duocva
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.nathanbernal.duocva.models.Usuario
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
 
 class RecoverActivity : AppCompatActivity() {
@@ -93,7 +96,28 @@ fun RecoverForm() {
         Button(
             modifier = Modifier.padding(16.dp)
                 .fillMaxWidth(),
-            onClick = {  },
+            onClick = {
+
+                if (EmailValida(email.value)) {
+                    Toast.makeText(context, "El email ingresado es incorrecto", Toast.LENGTH_SHORT).show()
+                } else {
+                    val usuario = Usuario.obtenerUsuario(email.value)
+                    if (usuario != null) {
+                        Toast.makeText(
+                            context,
+                            "Su contraseña es " + usuario.contrasena,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "El email de usuario no existe",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+            },
         ) {
             Text(
                 "Mostrar contraseña",
@@ -102,5 +126,12 @@ fun RecoverForm() {
         }
 
     }
+
+}
+
+fun EmailValida(email: String):Boolean {
+
+    val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+    return email.matches(emailPattern.toRegex())
 
 }

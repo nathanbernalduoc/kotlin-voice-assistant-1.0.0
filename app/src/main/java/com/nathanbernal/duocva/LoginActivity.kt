@@ -2,6 +2,7 @@ package com.nathanbernal.duocva
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nathanbernal.duocva.models.Usuario
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
 
 class LoginActivity : AppCompatActivity() {
@@ -110,9 +112,13 @@ fun Login() {
             modifier = Modifier.padding(16.dp),
             onClick = {
 
-                val intent = Intent(context, HomeActivity::class.java)
-                context.startActivity(intent)
-
+                val usuario = Usuario.obtenerUsuario(usuario.value)
+                if (usuario != null && usuario.contrasena == contrasena.value) {
+                    val intent = Intent(context, HomeActivity::class.java)
+                    context.startActivity(intent)
+                } else {
+                    Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+                }
             },
         ) {
             Text(
