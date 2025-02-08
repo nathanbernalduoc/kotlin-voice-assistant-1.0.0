@@ -2,5 +2,6 @@
 <resources>
 
     <style name="Theme.DuocVA" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.DuocVA2" parent="Theme.DuocVA" />
 </resources>
 

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">DuocVA</string>
+    <string name="app_title">
+        <font color="green">Voice</font> <font color="blue">Assistant</font>
+    </string>
+    <string name="entrar">Entrar</string>
+    <string name="btn_registrarse">Registrarse</string>
 </resources>
