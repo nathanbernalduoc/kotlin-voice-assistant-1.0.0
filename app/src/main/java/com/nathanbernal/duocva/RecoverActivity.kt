@@ -2,6 +2,7 @@ package com.nathanbernal.duocva
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -39,6 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.nathanbernal.duocva.models.Usuario
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
 
@@ -58,7 +63,9 @@ class RecoverActivity : AppCompatActivity() {
 fun RecoverForm() {
 
     var email = remember { mutableStateOf("") }
-
+    Log.d("[LoginActivity]", "Cargando Firebase...")
+    var database = FirebaseDatabase.getInstance().getReference("usuario")
+    Log.d("[LoginActivity]", "Firebase cargado!")
     val context = LocalContext.current
 
 
@@ -151,23 +158,54 @@ fun RecoverForm() {
                 .fillMaxWidth(),
             onClick = {
 
-                if (EmailValida(email.value)) {
-                    Toast.makeText(context, "El email ingresado es incorrecto", Toast.LENGTH_SHORT).show()
+                if (!EmailValida(email.value)) {
+                    Toast.makeText(context, "El email ingresado es incorrecto (Email validación)", Toast.LENGTH_SHORT).show()
                 } else {
-                    val usuario = Usuario.obtenerUsuario(email.value)
-                    if (usuario != null) {
-                        Toast.makeText(
-                            context,
-                            "Su contraseña es " + usuario.contrasena,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "El email de usuario no existe",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+
+                    val usuarioRef = database.child("/")
+                    usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            Log.d("[Login]", "Recuperando usuario")
+                            var usuarioSelect:String = ""
+                            if (snapshot.exists()) {
+                                for (usuarioItem in snapshot.children) {
+                                    Log.d("[RECOVER]", usuarioItem.toString())
+                                    Log.d("[RECOVER]", "Pass "+usuarioItem.child("password").getValue().toString())
+                                    val usuario = usuarioItem.child("usuario").getValue().toString()
+                                    val password = usuarioItem.child("password").getValue().toString()
+                                    if (usuario.equals(email.value.trim())) {
+                                        usuarioSelect = usuario
+                                        val contrasena =
+                                            usuarioItem.child("password").getValue().toString()
+                                        Toast.makeText(
+                                            context,
+                                            "Su contraseña es " + contrasena,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                                if (usuarioSelect.isEmpty()) {
+                                    Toast.makeText(context, "El usuario especificado no existe", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "El email de usuario no existe",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Toast.makeText(
+                                context,
+                                "No se ha podido recuperar la contraseña.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.e("[Login]", "Error al obtener datos del usuario ${error.message}")
+                        }
+                    })
+
                 }
             },
             colors = ButtonDefaults.buttonColors(

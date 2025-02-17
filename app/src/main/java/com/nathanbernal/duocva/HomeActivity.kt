@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.ParcelFileDescriptor.FileDescriptorDetachedException
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -39,6 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
 import java.io.File
 import java.nio.file.Paths
@@ -59,15 +65,45 @@ class HomeActivity : AppCompatActivity() {
 @Composable
 fun AssistantForm() {
 
-    val stat = mapOf(
+    Log.d("[LoginActivity]", "Cargando Firebase...")
+    var database = FirebaseDatabase.getInstance().getReference("dicionario")
+    Log.d("[LoginActivity]", "Firebase cargado!")
+
+    val stat = mutableMapOf<Int,String>()
+    val stat2 = mapOf(
         "Hola" to 1,
         "Adiós" to 2,
         "Estoy de acuerdo" to 3,
         "Tengo un problema" to 4,
         "Mi contacto es" to 5,
         "Necesito ayuda" to 6)
-    
+
+    val diccionarioRef = database.child("/")
     val context = LocalContext.current
+
+    diccionarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.d("[Login]", "Recuperando usuario")
+            if (snapshot.exists()) {
+                for (dicItem in snapshot.children) {
+
+                    val etiqueta = dicItem.child("etiqueta").getValue().toString()
+                    val frase = dicItem.child("frase").getValue().toString()
+                    val audio = dicItem.child("audio").getValue().toString()
+
+                    stat.put(stat.count(), etiqueta)
+
+                }
+                Log.d("HOME", "STAT")
+                Log.d("HOME", stat.toString())
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Toast.makeText(context, "No se ha recuperado el usuario especificado", Toast.LENGTH_SHORT).show()
+            Log.e("[Login]", "Error al obtener datos del usuario ${error.message}")
+        }
+    })
 
     Column (
         modifier = Modifier.fillMaxWidth()
@@ -98,7 +134,8 @@ fun AssistantForm() {
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        stat.forEach { statement ->
+        stat2.forEach { statement ->
+
             Button(
 
                 modifier = Modifier
@@ -145,7 +182,7 @@ fun AssistantForm() {
                 }
             ) {
                 Text(
-                    statement.key.toString(),
+                    statement.toString(),
                     fontSize = 20.sp
                 )
             }

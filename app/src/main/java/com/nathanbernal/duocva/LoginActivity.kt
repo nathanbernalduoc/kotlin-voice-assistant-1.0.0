@@ -3,6 +3,7 @@ package com.nathanbernal.duocva
 import android.content.Intent
 import android.os.Bundle
 import android.text.Layout
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -47,13 +48,25 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 import com.nathanbernal.duocva.models.Usuario
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
+import java.util.regex.Matcher
 
 open class LoginActivity : AppCompatActivity() {
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
         setContent {
             DuocVATheme {
                 // Usuario default
@@ -66,6 +79,17 @@ open class LoginActivity : AppCompatActivity() {
 
 @Composable
 fun Login() {
+
+    Log.d("[LoginActivity]", "Cargando Firebase...")
+    var database = FirebaseDatabase.getInstance().getReference("usuario")
+    Log.d("[LoginActivity]", "Firebase cargado!")
+
+    fun checkMail(email: String): Boolean {
+        var pat:java.util.regex.Pattern = java.util.regex.Pattern.compile("[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}")
+        var compare:Matcher = pat.matcher(email)
+        return compare.find()
+    }
+
     var usuario = remember { mutableStateOf("") }
     var contrasena = remember { mutableStateOf("") }
     var showPassword = remember { mutableStateOf(false) }
@@ -79,7 +103,8 @@ fun Login() {
     val context = LocalContext.current
 
     Column (
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .fillMaxHeight()
             .background(Color.White)
             .verticalScroll(rememberScrollState()),
@@ -166,13 +191,34 @@ fun Login() {
                 .fillMaxWidth(),
             onClick = {
 
-                val usuario = Usuario.obtenerUsuario(usuario.value)
-                if (usuario != null && usuario.contrasena == contrasena.value) {
-                    val intent = Intent(context, HomeActivity::class.java)
-                    context.startActivity(intent)
-                } else {
-                    Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
-                }
+                val usuarioRef = database.child("/")
+                usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        Log.d("[Login]", "Recuperando usuario")
+                        if (snapshot.exists()) {
+                            for (usuarioItem in snapshot.children) {
+
+                                Log.d("Login *****", "Usuario "+usuarioItem.child("usuario").getValue().toString())
+                                Log.d("Login *****", "Pass "+usuarioItem.child("password").getValue().toString())
+
+                                val email = usuarioItem.child("usuario").getValue().toString()
+                                val pass = usuarioItem.child("password").getValue().toString()
+                                if (contrasena.value.equals(pass)) {
+                                    val intent = Intent(context, HomeActivity::class.java)
+                                    context.startActivity(intent)
+                                } else {
+                                    Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Toast.makeText(context, "No se ha recuperado el usuario especificado", Toast.LENGTH_SHORT).show()
+                        Log.e("[Login]", "Error al obtener datos del usuario ${error.message}")
+                    }
+                })
+
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = colorResource(R.color.ligthRed),
@@ -248,4 +294,6 @@ fun Login() {
 
         }
     }
+
 }
+
