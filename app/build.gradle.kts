@@ -73,4 +73,6 @@ dependencies {
 
     implementation("com.airbnb.android:lottie:6.3.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
+
+    testImplementation("junit:junit:4.3.2")
 }

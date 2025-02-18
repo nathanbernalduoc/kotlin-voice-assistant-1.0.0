@@ -1,9 +1,6 @@
 package com.nathanbernal.duocva
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.animation.core.snap
-import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -51,14 +48,12 @@ class ApiServices {
     fun getUsuariosAll(): MutableList<UsuarioService> {
 
         var usuarios = mutableListOf<UsuarioService>()
-        var c = 0L
         var database = FirebaseDatabase.getInstance().getReference("usuario")
         val usuarioRef = database.child("/")
 
         usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    var c = snapshot.children.count()
                     usuarios.clear()
                     for(usuarioItem in snapshot.children) {
                         var u = UsuarioService(
