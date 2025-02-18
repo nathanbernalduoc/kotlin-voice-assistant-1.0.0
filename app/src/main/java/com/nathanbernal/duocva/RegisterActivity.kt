@@ -183,9 +183,14 @@ fun RegisterForm() {
                 )
                 .fillMaxWidth(),
             onClick = {
-                val usuario = Usuario(email.value, nombre.value, contrasena.value)
-                Usuario.agregarUsuario(usuario)
+
+                val api = ApiServices()
+                val usuariosList = api.getUsuariosAll()
+                var usuarioService = api.crearDatosUsuario(usuariosList, Usuario(email = email.value, nombre = nombre.value, contrasena = contrasena.value))
+                api.enviarDatosUsuario(usuarioService)
+
                 Toast.makeText(context, "Usuario almacenado", Toast.LENGTH_SHORT).show()
+
                 // volviendo a login
                 val intent = Intent(context, LoginActivity::class.java)
                 context.startActivity(intent)

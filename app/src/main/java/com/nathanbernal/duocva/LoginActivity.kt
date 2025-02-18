@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
 import com.nathanbernal.duocva.models.Usuario
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
+import org.json.JSONObject
+import org.xml.sax.Parser
 import java.util.regex.Matcher
 
 open class LoginActivity : AppCompatActivity() {
@@ -192,23 +195,37 @@ fun Login() {
             onClick = {
 
                 val usuarioRef = database.child("/")
+
                 usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+
                     override fun onDataChange(snapshot: DataSnapshot) {
+
                         Log.d("[Login]", "Recuperando usuario")
+
                         if (snapshot.exists()) {
                             for (usuarioItem in snapshot.children) {
+                                val email = usuarioItem.child("email").getValue().toString()
+                                val pass = usuarioItem.child("contrasena").getValue().toString()
+                                Log.d(
+                                    "LOGIN ->",
+                                    "Email " + email
+                                )
+                                Log.d(
+                                    "LOGIN ->",
+                                    "Contrasena " + contrasena
+                                )
 
-                                Log.d("Login *****", "Usuario "+usuarioItem.child("usuario").getValue().toString())
-                                Log.d("Login *****", "Pass "+usuarioItem.child("password").getValue().toString())
-
-                                val email = usuarioItem.child("usuario").getValue().toString()
-                                val pass = usuarioItem.child("password").getValue().toString()
-                                if (contrasena.value.equals(pass)) {
+                                if (usuario.value.equals(email) && contrasena.value.equals(pass)) {
                                     val intent = Intent(context, HomeActivity::class.java)
                                     context.startActivity(intent)
                                 } else {
-                                    Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Credenciales incorrectas",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
+
                             }
                         }
                     }
