@@ -194,6 +194,8 @@ fun Login() {
                 .fillMaxWidth(),
             onClick = {
 
+                Log.d("[Login]", "Entrando...")
+
                 val usuarioRef = database.child("/")
 
                 usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -215,8 +217,9 @@ fun Login() {
                                     "Contrasena " + contrasena
                                 )
 
-                                if (usuario.value.equals(email) && contrasena.value.equals(pass)) {
-                                    val intent = Intent(context, HomeActivity::class.java)
+                                if (usuario.value.trim().equals(email) && contrasena.value.equals(pass)) {
+                                    Log.d("[Login]", "Recuperando usuario")
+                                    val intent = Intent(context, WelcomeActivity()::class.java)
                                     context.startActivity(intent)
                                 } else {
                                     Toast.makeText(

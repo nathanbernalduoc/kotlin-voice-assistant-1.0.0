@@ -71,7 +71,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation("com.airbnb.android:lottie:6.3.0")
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
 
     testImplementation("junit:junit:4.3.2")
