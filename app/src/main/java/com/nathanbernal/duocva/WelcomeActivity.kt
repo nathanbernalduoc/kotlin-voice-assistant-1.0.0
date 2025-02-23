@@ -2,7 +2,6 @@ package com.nathanbernal.duocva
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Space
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -31,11 +30,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import com.airbnb.lottie.compose.LottieAnimatable
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.google.android.material.internal.TextScale
 
 class WelcomeActivity : AppCompatActivity() {
 
@@ -78,7 +75,7 @@ fun Welcome() {
                 )
                 .fillMaxWidth(),
             onClick = {
-                val intent = Intent(context, HomeActivity::class.java)
+                val intent = Intent(context, MainActivity::class.java)
                 context.startActivity(intent)
             },
             colors = ButtonDefaults.buttonColors(

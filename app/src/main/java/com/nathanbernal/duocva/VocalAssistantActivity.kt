@@ -1,12 +1,8 @@
 package com.nathanbernal.duocva
 
 import android.content.Intent
-import android.media.MediaPlayer
 import android.media.MediaPlayer.*
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.os.ParcelFileDescriptor.FileDescriptorDetachedException
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -39,16 +35,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.nathanbernal.duocva.ui.theme.DuocVATheme
-import java.io.File
-import java.nio.file.Paths
-import java.util.Dictionary
 
 class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,15 +59,14 @@ fun AssistantForm() {
     Log.d("[LoginActivity]", "Cargando Firebase...")
     var database = FirebaseDatabase.getInstance().getReference("dicionario")
     Log.d("[LoginActivity]", "Firebase cargado!")
-
     val stat = mutableMapOf<Int,String>()
     val stat2 = mapOf(
-        "Hola" to 1,
-        "Adiós" to 2,
-        "Estoy de acuerdo" to 3,
-        "Tengo un problema" to 4,
-        "Mi contacto es" to 5,
-        "Necesito ayuda" to 6)
+        1 to "Hola",
+        2 to "Adiós",
+        3 to "Estoy de acuerdo",
+        4 to "Tengo un problema",
+        5 to "Mi contacto es",
+        6 to "Necesito ayuda")
 
     val diccionarioRef = database.child("/")
     val context = LocalContext.current
@@ -90,12 +80,15 @@ fun AssistantForm() {
                     val etiqueta = dicItem.child("etiqueta").getValue().toString()
                     val frase = dicItem.child("frase").getValue().toString()
                     val audio = dicItem.child("audio").getValue().toString()
-
-                    stat.put(stat.count(), etiqueta)
+                    val recursoId: String = dicItem.child("recursoId").getValue().toString()
+                    val recInt = recursoId.toInt()
+                    stat.put(recInt, etiqueta)
 
                 }
                 Log.d("HOME", "STAT")
                 Log.d("HOME", stat.toString())
+
+
             }
         }
 
@@ -118,7 +111,7 @@ fun AssistantForm() {
             painter = painterResource(id = R.drawable.oreja2),
             contentDescription = null,
             modifier = Modifier
-                .width(100.dp)
+                .width(30.dp)
                 .fillMaxWidth()
                 .padding(top = 0.dp),
         )
@@ -128,9 +121,17 @@ fun AssistantForm() {
         Text(
             text = stringResource(R.string.app_title),
             color = Color.DarkGray,
-            fontSize = 50.sp,
+            fontSize = 20.sp,
             fontStyle = FontStyle.Italic
         )
+
+        Text(
+            text = stringResource(R.string.vocal_title),
+            color = Color.DarkGray,
+            fontSize = 60.sp,
+            fontStyle = FontStyle.Italic
+        )
+
 
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -153,7 +154,8 @@ fun AssistantForm() {
                 shape = RoundedCornerShape(10.dp),
 
                 onClick = {
-                    when (statement.value) {
+                    Log.d("CHECK", statement.key.toString())
+                    when (statement.key) {
                         1 -> {
                             val mp = create(context, R.raw.audio_1)
                             mp.start()
@@ -182,7 +184,7 @@ fun AssistantForm() {
                 }
             ) {
                 Text(
-                    statement.toString(),
+                    text = statement.value.toString(),
                     fontSize = 20.sp
                 )
             }
@@ -200,7 +202,7 @@ fun AssistantForm() {
                 )
                 .fillMaxWidth(),
             onClick = {
-                val intent = Intent(context, LoginActivity::class.java)
+                val intent = Intent(context, MainActivity::class.java)
                 context.startActivity(intent)
             },
             colors = ButtonDefaults.buttonColors(
@@ -210,7 +212,7 @@ fun AssistantForm() {
             shape = RoundedCornerShape(10.dp)
         ) {
             Text(
-                "Salir",
+                "Volver",
                 fontSize = 20.sp
             )
 
@@ -218,3 +220,5 @@ fun AssistantForm() {
 
     }
 }
+
+

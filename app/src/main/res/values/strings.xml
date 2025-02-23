@@ -5,4 +5,10 @@
     </string>
     <string name="entrar">Entrar</string>
     <string name="btn_registrarse">Registrarse</string>
+
+    <string name="dict_title">Dictado por voz</string>
+    <string name="vocal_title">Respuestas</string>
+
+    <string name="vocal_content">Para proceder toque la imágen para iniciar el dictado</string>
+
 </resources>
