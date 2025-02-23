@@ -129,6 +129,32 @@ fun MainMenu() {
             )
         }
 
+        Button(
+            modifier = Modifier
+                .padding(
+                    start = 10.dp,
+                    top = 100.dp,
+                    end = 10.dp,
+                    bottom = 0.dp
+                )
+                .height(50.dp)
+                .fillMaxWidth(),
+            onClick = {
+                val intent = Intent(context, LoginActivity::class.java)
+                context.startActivity(intent)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.ligthRed),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Text(
+                text = "Salir",
+                fontSize = 30.sp
+            )
+        }
+
     }
 
 }

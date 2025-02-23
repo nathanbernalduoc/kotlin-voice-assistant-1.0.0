@@ -217,7 +217,7 @@ fun Login() {
                                     "Contrasena " + contrasena
                                 )
 
-                                if (usuario.value.trim().equals(email) && contrasena.value.equals(pass)) {
+                                if (usuario.value.trim().equals(email.trim()) && contrasena.value.equals(pass)) {
                                     Log.d("[Login]", "Recuperando usuario")
                                     val intent = Intent(context, WelcomeActivity()::class.java)
                                     context.startActivity(intent)

@@ -30,7 +30,20 @@ class ApiServices {
     private val databaseDiccionario: DatabaseReference = Firebase.database.reference.child("diccionario")
 
     fun enviarDatosUsuario(usuarioData: Map<String, UsuarioService>) {
-        databaseUsuario.setValue(usuarioData).addOnSuccessListener {
+
+        var usuariosAll = getUsuarios()
+        var usuarios = usuariosAll //mutableMapOf<String, UsuarioService>()
+
+        Log.d("USUARIOS", usuariosAll.toString())
+        Log.d("USUARIOS", usuarioData.toString())
+
+        for (usuarioItem in usuarioData) {
+            usuarios.put(usuarioItem.key, usuarioItem.value)
+        }
+
+        Log.d("USUARIOS", usuarios.toString())
+
+        databaseUsuario.setValue(usuarios).addOnSuccessListener {
             Log.d("[API SERVICE]","Usuario: Datos enviados")
         }.addOnFailureListener { error ->
             Log.d("[API SERVICE]", "Error al enviar los datos: ${error.message}")
@@ -43,6 +56,36 @@ class ApiServices {
         }.addOnFailureListener { error ->
             println("Error al enviar los datos: ${error.message}")
         }
+    }
+
+    fun getUsuarios(): MutableMap<String, UsuarioService> {
+
+        var usuarios = mutableMapOf<String, UsuarioService>()
+        var database = FirebaseDatabase.getInstance().getReference("usuario")
+
+        val usuarioRef = database.child("/")
+
+        usuarioRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    usuarios.clear()
+                    for(usuarioItem in snapshot.children) {
+                        var u = UsuarioService(
+                            email = usuarioItem.child("usuario").getValue().toString(),
+                            nombre = usuarioItem.child("nombre").getValue().toString(),
+                            contrasena = usuarioItem.child("contrasena").getValue().toString())
+                        usuarios.put(usuarioItem.key.toString(), u)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("[Login]", "Error al obtener datos del usuario ${error.message}")
+            }
+        })
+
+        return usuarios
+
     }
 
     fun getUsuariosAll(): MutableList<UsuarioService> {
